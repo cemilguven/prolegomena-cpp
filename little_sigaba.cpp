@@ -1,24 +1,81 @@
 #include <iostream>
+#include <string>
+
+void clear() {
+	std::cout << "\033[2J\033[H" << std::flush;
+}
 
 int main() {
-	char letter1, letter2, letter3, letter4, letter5;
-	int key;
 
-	std::cout << "---ENCRYPTION TERMINAL---" << '\n';
-	std::cout << "Enter a 5-letter password" << '\n';
-	std::cin >> letter1 >> letter2 >> letter3 >> letter4 >> letter5;
+	int key, choice1;
+	bool keepRunning = true;
 
-	std::cout << "Enter your secret key" << '\n';
-	std::cin >> key;
+	std::string password;
+	std::string userInput;
 
-		char result1 = letter1 + key;
-		char result2 = letter2 + key;
-		char result3 = letter3 + key;
-		char result4 = letter4 + key;
-		char result5 = letter5 + key;
+	do {
 
-		std::cout << "Here is your encrypted password: " << result1 << result2 << result3 << result4 << result5;
+		std::cout << "------------------------" << '\n';
+		std::cout << "------LITTLE SIGABA-----" << '\n';
+		std::cout << "------------------------" << '\n';
+		std::cout << '\n';
+		std::cout << "1. Encrypt Password" << '\n';
+		std::cout << "\n2. Decrypt Password" << '\n';
+		std::cout << '\n';
+		std::cin >> choice1;
 
-		return 0;
-}   
+		if (choice1 == 1) {
 
+			clear();
+			std::cout << "------------------------" << '\n';
+			std::cout << "---ENCRYPTION TERMINAL--" << '\n';
+			std::cout << "------------------------" << '\n';
+			std::cout << "\nPassword:";
+			std::cin >> password;
+			std::cout << "\nSecret Key:";
+
+			std::cin >> key;
+
+			for (int i = 0; i < password.length(); i++) {
+				password[i] = password[i] + key;
+			}
+			std::cout << "\nEncrypted Password: " <<password;
+
+		}
+
+		else if (choice1 == 2) {
+
+			clear();
+			std::cout << "------------------------" << '\n';
+			std::cout << "---DECRYPTION TERMINAL--" << '\n';
+			std::cout << "------------------------" << '\n';
+			std::cout << '\n' << "Encrypted Password:";
+			std::cin >> password;
+			std::cout << "\nSecret Key:";
+			std::cin >> key;
+
+			for (int i = 0; i < password.length(); i++) {
+				password[i] = password[i] - key;
+			}
+
+			std::cout << "\nDecrypted Password:" <<password;
+
+		}
+		std::cout << '\n';
+		std::cout << "\nWould you like to go back to the main menu? (Yes or No): ";
+		std::cin >> userInput;
+		clear();
+
+		if (userInput == "yes" || userInput == "y" || userInput == "Yes" || userInput == "YES") {
+			keepRunning = true;
+			clear();
+		}
+		else if (userInput == "no" || userInput == "n" || userInput == "No" || userInput == "NO") {
+			keepRunning = false;
+			std::cout << "Bye!\n";
+		}
+
+	} while (keepRunning);
+	return 0;
+
+	}
