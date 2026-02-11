@@ -3,29 +3,7 @@
 #include <string>
 #include <vector>
 
-double calculate_voltage(double i, double r) {
-	return i * r;
-}
-
-double calculate_current(double v, double r) {
-	return v / r;
-}
-
-double calculate_resistance(double v, double i) {
-	return v / i;
-}
-
-double calculate_power(double v, double i) {
-	return v * i;
-}
-
-double calculate_power_from_voltage_resistance(double v, double r) {
-	return (v * v) / r;
-}
-
-double calculate_power_from_current_resistance(double i, double r) {
-	return (i * i) * r;
-}
+std::vector<double> history;
 
 void clearscreen() {
 	std::cout << "\033[2J\033[H" << std::flush;
@@ -38,10 +16,33 @@ void goback() {
 	clearscreen();
 }
 
-std::vector<double> history;
-std::string userInput;
-
 void circuit_analysis_menu();
+
+void matrix_calculator_menu();
+
+double calculate_power(double v, double i) {
+	return v * i;
+}
+
+double calculate_voltage(double i, double r) {
+	return i * r;
+}
+
+double calculate_current(double v, double r) {
+	return v / r;
+}
+
+double calculate_resistance(double v, double i) {
+	return v / i;
+}
+
+double calculate_power_from_voltage_resistance(double v, double r) {
+	return (v * v) / r;
+}
+
+double calculate_power_from_current_resistance(double i, double r) {
+	return (i * i) * r;
+}
 
 int main() {
 
@@ -57,75 +58,98 @@ int main() {
 		std::cout << "\n3. History\n";
 		std::cout << "\n4. Exit\n";
 		std::cout << "\n";
-		int choice0;
-		std::cin >> choice0;
+		int main_menu_choice;
+		std::cin >> main_menu_choice;
 		clearscreen();
 
-			if (choice0 == 1) {
-				circuit_analysis_menu();
-			}
-
-			else if (choice0 == 3) {
-				std::cout << "--- Calculation History ---" << '\n';
-				if (history.empty()) {
-					clearscreen();
-					std::cout << "No history yet.\n";
-					goback();
-
-				}
-				else {
-					for (double n : history) {
-						std::cout << n << '\n';
-						goback();
-					}
-				}
-
-			}
-
-			else if (choice0 == 4) {
-				main_menu = false;
-				break;
-			}
-
-			else {
+		if (!(main_menu_choice)) {
+				std::cin.clear();
+				std::cin.ignore(1000, '\n');
 				clearscreen();
-				std::cout << "Invalid Input.\n";
+				std::cout << "Invalid Input." << '\n';
 				std::cout << "\n";
+				continue;
+		}
+
+		if (main_menu_choice == 1) {
+			circuit_analysis_menu();
+		}
+
+		else if (main_menu_choice == 2) {
+			matrix_calculator_menu();
+		}
+
+		else if (main_menu_choice == 3) {
+			clearscreen();
+			std::cout << "--- Calculation History ---" << '\n';
+			std::cout << '\n';
+			if (history.empty()) {
+				std::cout << "No history yet.\n";
+				goback();
+
 			}
+			else {
+				for (double n : history) {
+					std::cout << n << '\n';
+				}
+				goback();
+			}
+
+		}
+
+		else if (main_menu_choice == 4) {
+			main_menu = false;
+			break;
+		}
+
+		else {
+			clearscreen();
+			std::cout << "Invalid Input." << '\n';
+			std::cout << "\n";
 		}
 	}
+}
 
 void circuit_analysis_menu() {
 
-	bool in_circuit_mode = true;
-	int sub_choice1;
-	int sub_choice2;
-	int sub_choice3;
-	int sub_choice0;
+	bool circuit_analysis_menu = true;
 
-	while (in_circuit_mode) {
+	while (circuit_analysis_menu) {
 
-		std::cout << "-------------------------------\n";
-		std::cout << "-----CIRCUIT ANALYSIS MENU-----\n";
-		std::cout << "-------------------------------\n";
+		int circuit_menu_choice;
+
+		std::cout << "---------------------------------\n";
+		std::cout << "---CIRCUIT ANALYSIS CALCULATOR---\n";
+		std::cout << "---------------------------------\n";
 		std::cout << "\n1. Ohm's Law Calculator\n";
 		std::cout << "\n2. Power Calculator\n";
 		std::cout << "\n3. Go Back\n";
 		std::cout << "\n";
-		std::cin >> sub_choice0;
+		std::cin >> circuit_menu_choice;
 		clearscreen();
 
-		if (sub_choice0 == 1) {
+		if (!(circuit_menu_choice)) {
+			std::cin.clear();
+			std::cin.ignore(1000, '\n');
+			clearscreen();
+			std::cout << "Invalid Input." << '\n';
+			std::cout << "\n";
+			continue;
+		}
+
+		if (circuit_menu_choice == 1) {
+
+			int ohm_menu_choice;
 
 			std::cout << "1. Voltage Calculator [I * R]" << '\n';
 			std::cout << "\n2. Current Calculator [V / R]" << '\n';
 			std::cout << "\n3. Resistance Calculator [V / I]" << '\n';
 			std::cout << "\n";
-			std::cin >> sub_choice1;
+			std::cin >> ohm_menu_choice;
 
 
 			clearscreen();
-			if (sub_choice1 == 1) {
+			if (ohm_menu_choice == 1) {
 				double i, r;
 
 				std::cout << "Enter Current (A): ";
@@ -142,7 +166,7 @@ void circuit_analysis_menu() {
 				goback();
 			}
 
-			else if (sub_choice1 == 2) {
+			else if (ohm_menu_choice == 2) {
 				double v, r;
 
 				std::cout << "Enter Voltage (V): ";
@@ -159,7 +183,7 @@ void circuit_analysis_menu() {
 				goback();
 			}
 
-			else if (sub_choice1 == 3) {
+			else if (ohm_menu_choice == 3) {
 				double v, i;
 
 				std::cout << "Enter Voltage (V): ";
@@ -179,17 +203,26 @@ void circuit_analysis_menu() {
 
 		}
 
-		else if (sub_choice0 == 2) {
+		else if (circuit_menu_choice == 2) {
+
+			int power_menu_choice;
 
 			std::cout << "1. Using Voltage and Resistance [V^2 / R] " << '\n';
 			std::cout << "\n2. Using Current and Resistance [I^2 * R] " << '\n';
 			std::cout << "\n3. Using Voltage and Current [V * I]" << '\n';
 			std::cout << "\n";
-			std::cin >> sub_choice3;
+			std::cin >> power_menu_choice;
 
+			if (!(power_menu_choice)) {
+				std::cin.clear();
+				std::cin.ignore(1000, '\n');
+				clearscreen();
+				std::cout << "Invalid Input." << '\n';
+				std::cout << "\n";
+				continue;
+			}
 
-
-			if (sub_choice3 == 1) {
+			if (power_menu_choice == 1) {
 				double v, r;
 
 				clearscreen();
@@ -208,7 +241,7 @@ void circuit_analysis_menu() {
 				goback();
 			}
 
-			else if (sub_choice3 == 2) {
+			else if (power_menu_choice == 2) {
 				double i, r;
 
 				clearscreen();
@@ -227,7 +260,7 @@ void circuit_analysis_menu() {
 				goback();
 
 			}
-			else if (sub_choice3 == 3) {
+			else if (power_menu_choice == 3) {
 				double v, i;
 
 				clearscreen();
@@ -247,19 +280,110 @@ void circuit_analysis_menu() {
 			}
 		}
 
-			else if (sub_choice0 == 3) {
+		else if (circuit_menu_choice == 3) {
 
-				in_circuit_mode = false;
+			circuit_analysis_menu = false;
+			clearscreen();
+		}
+
+		else {
+			clearscreen();
+			std::cout << "Invalid Input.\n";
+			std::cout << "\n";
+			goback();
+		}
+
+	}
+
+}
+
+void matrix_calculator_menu() {
+
+	int matrix_menu_choice;
+
+	bool matrix_calculator_menu = true;
+
+	int rows, columns;
+
+	while (matrix_calculator_menu) {
+
+			std::cout << "---------------------------------" << '\n';
+			std::cout << "--------MATRIX CALCULATOR--------" << '\n';
+			std::cout << "---------------------------------" << '\n';
+			std::cout << "\n1. Matrix Addition" << '\n';
+			std::cout << "\n2. Matrix Subtraction" << '\n';
+			std::cout << "\n3. Matrix Multiplication" << '\n';
+			std::cout << "\n4. Go back" << '\n';
+			std::cout << '\n';
+			std::cin >> matrix_menu_choice;
+
+			if (!(matrix_menu_choice)) {
+				std::cin.clear();
+				std::cin.ignore(1000, '\n');
 				clearscreen();
+				std::cout << "Invalid Input." << '\n';
+				std::cout << "\n";
+				continue;
 			}
 
-			else {
+			if (matrix_menu_choice == 1) {
 				clearscreen();
-				std::cout << "Invalid Input.\n";
-				std::cout << "\n";
+
+				std::cout << "Enter the number of rows: ";
+				std::cin >> rows;
+				std::cout << '\n';
+
+				std::cout << "Enter the number of columns: ";
+				std::cin >> columns;
+
+				std::vector<std::vector<double>> first_matrix(rows, std::vector<double>(columns));
+				std::vector<std::vector<double>> second_matrix(rows, std::vector<double>(columns));
+				std::vector<std::vector<double>> sum_of_matrices(rows, std::vector<double>(columns));
+
+				clearscreen();
+				std::cout << "--- Enter elements of the First Matrix ---\n";
+				std::cout << '\n';
+
+				for (int i = 0; i < rows; i++) {
+					for (int j = 0; j < columns; j++) {
+						std::cout << "Enter Elements [" << i + 1 << "][" << j + 1 << "]: ";
+						std::cin >> first_matrix[i][j];
+					}
+					std::cout << '\n';
+				}
+				clearscreen();
+				std::cout << "--- Enter elements of the Second Matrix ---\n";
+				std::cout << '\n';
+
+				for (int i = 0; i < rows; i++) {
+					for (int j = 0; j < columns; j++) {
+						std::cout << "Enter Element [" << i + 1 << "][" << j + 1 << "]: ";
+						std::cin >> second_matrix[i][j];
+					}
+					std::cout << '\n';
+				}
+				clearscreen();
+				for (int i = 0; i < rows; i++) {
+					for (int j = 0; j < columns; j++) {
+						sum_of_matrices[i][j] = first_matrix[i][j] + second_matrix[i][j];
+					}
+				}
+
+				clearscreen();
+				std::cout << "--- Sum of Matrices ---\n";
+				for (int i = 0; i < rows; i++) {
+					for (int j = 0; j < columns; j++) {
+						std::cout << sum_of_matrices[i][j] << "\t"; 
+					}
+					std::cout << "\n";
+				}
 				goback();
 			}
 
-	}
+			else if (matrix_menu_choice == 4) {
+				matrix_calculator_menu = false;
+				clearscreen();
+			}
 
-	}
+		}
+}
