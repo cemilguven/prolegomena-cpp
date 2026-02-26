@@ -9,11 +9,12 @@ int main() {
 
     int min_hue = 0, min_saturation = 0, min_value = 0;
     int max_hue = 179, max_saturation = 255, max_value = 255;
-    int target_x = 0, target_y = 0;
+    float target_x = 0, target_y = 0; // 32-bit ~6–7 digits
 
     cv::namedWindow("Argus X-1 Vision: Color Calibration");
+    cv::resizeWindow("Argus X-1 Vision: Color Calibration", 450, 350);
     cv::createTrackbar("Hue Min", "Argus X-1 Vision: Color Calibration", &min_hue, 179);
-    cv::createTrackbar("Hue Max", "Argus X-1 Vision: Color Calibration", &max_hue, 179); 
+    cv::createTrackbar("Hue Max", "Argus X-1 Vision: Color Calibration", &max_hue, 179); // max 179?
     cv::createTrackbar("Sat Min", "Argus X-1 Vision: Color Calibration", &min_saturation, 255);
     cv::createTrackbar("Sat Max", "Argus X-1 Vision: Color Calibration", &max_saturation, 255);
     cv::createTrackbar("Val Min", "Argus X-1 Vision: Color Calibration", &min_value, 255);
@@ -38,14 +39,22 @@ int main() {
         cv::inRange(webcam_hsv, lower_orange, upper_orange, webcam_binary_mask);
         cv::Moments m = cv::moments(webcam_binary_mask, true);
 
-        if (m.m00 > 150) { 
+        if (m.m00 > 150) { // 200 kinda good to filter noise, test more
 
-            target_x = m.m10 / m.m00; 
+            target_x = m.m10 / m.m00; // m00 = number of white pixels -- m10 = sum of x positions of white pixels -- m01 = sum of y positions of white pixels
             target_y = m.m01 / m.m00;
 
-            cv::circle(webcam_main, cv::Point(target_x, target_y), 4, cv::Scalar(0, 0, 255), -1);
+            //cv::circle(webcam_main, cv::Point(target_x, target_y), 4, cv::Scalar(0, 0, 255), -1);
 
-            std::cout << "TARGET DETECTED AT -> X: " << target_x << " | Y: " << target_y << '\n'; 
+            cv::line(webcam_main, cv::Point(target_x -6, target_y), cv::Point(target_x - 2, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x, target_y -6), cv::Point(target_x, target_y -2), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x + 6, target_y), cv::Point(target_x + 2, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x, target_y + 6), cv::Point(target_x, target_y + 2), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            
+            std::string hud_text = " X: " + std::to_string(static_cast<int>(target_x)) + " Y: " + std::to_string(static_cast<int>(target_y));
+            cv::putText(webcam_main, hud_text, cv::Point(target_x + 15, target_y + 15), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(0, 255, 0), 1, cv::LINE_8, false);
+
+            std::cout << "TARGET DETECTED AT -> X: " << static_cast<int>(target_x) << " | Y: " << static_cast<int>(target_y) << '\n'; // https://www.reddit.com/r/cpp_questions/comments/13i1282/stdendl_or_n/
         }
 
         else {
@@ -59,7 +68,7 @@ int main() {
         if (webcam_main.empty())
         break;
 
-        if (cv::waitKey(33) == 27) 
+        if (cv::waitKey(33) == 27) // 1000/33 = 30fps
         break;
     }
     cv::destroyAllWindows();
