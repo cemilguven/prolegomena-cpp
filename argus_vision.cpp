@@ -1,5 +1,10 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <fstream>
+#include <chrono>
+
+constexpr int crosshair_gap = 2;
+constexpr int crosshair_length = 6;
 
 int main() {
 
@@ -27,9 +32,16 @@ int main() {
 
     }
 
+    std::ofstream data_log("argus_telemetry.csv");
+    data_log << "Elapsed Time,X,Y,Area" << '\n';
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     while (true) {
 
         cap >> webcam_main;
+
+        if (webcam_main.empty())
+            break;
 
         cv::cvtColor(webcam_main, webcam_hsv, cv::COLOR_BGR2HSV);
 
@@ -39,17 +51,21 @@ int main() {
         cv::inRange(webcam_hsv, lower_orange, upper_orange, webcam_binary_mask);
         cv::Moments m = cv::moments(webcam_binary_mask, true);
 
-        if (m.m00 > 150) { // 200 kinda good to filter noise, test more
+        if (m.m00 > 150) { 
 
             target_x = m.m10 / m.m00; // m00 = number of white pixels -- m10 = sum of x positions of white pixels -- m01 = sum of y positions of white pixels
             target_y = m.m01 / m.m00;
 
+            auto current_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = current_time - start_time;
+            data_log << elapsed.count() << "," << target_x << "," << target_y << "," << m.m00 << '\n';
+
             //cv::circle(webcam_main, cv::Point(target_x, target_y), 4, cv::Scalar(0, 0, 255), -1);
 
-            cv::line(webcam_main, cv::Point(target_x -6, target_y), cv::Point(target_x - 2, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
-            cv::line(webcam_main, cv::Point(target_x, target_y -6), cv::Point(target_x, target_y -2), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
-            cv::line(webcam_main, cv::Point(target_x + 6, target_y), cv::Point(target_x + 2, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
-            cv::line(webcam_main, cv::Point(target_x, target_y + 6), cv::Point(target_x, target_y + 2), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x - crosshair_length, target_y), cv::Point(target_x - crosshair_gap, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x, target_y - crosshair_length), cv::Point(target_x, target_y - crosshair_gap), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x + crosshair_length, target_y), cv::Point(target_x + crosshair_gap, target_y), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
+            cv::line(webcam_main, cv::Point(target_x, target_y + crosshair_length), cv::Point(target_x, target_y + crosshair_gap), cv::Scalar(0, 255, 0), 1, cv::LINE_8);
             
             std::string hud_text = " X: " + std::to_string(static_cast<int>(target_x)) + " Y: " + std::to_string(static_cast<int>(target_y));
             cv::putText(webcam_main, hud_text, cv::Point(target_x + 15, target_y + 15), cv::FONT_HERSHEY_SIMPLEX, 0.35, cv::Scalar(0, 255, 0), 1, cv::LINE_8, false);
@@ -65,11 +81,10 @@ int main() {
         cv::imshow("Argus X-1 Vision: HSV Space", webcam_hsv);
         cv::imshow("Argus X-1 Vision: Binary Mask", webcam_binary_mask);
 
-        if (webcam_main.empty())
-        break;
-
-        if (cv::waitKey(33) == 27) // 1000/33 = 30fps
-        break;
+        if (cv::waitKey(1) == 27) {// 1000/33 = 30fps
+            data_log.close();
+            break;
+        }
     }
     cv::destroyAllWindows();
     return 0;
