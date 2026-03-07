@@ -108,6 +108,15 @@ int main() {
             std::cout << "Laser Tracking At -> X: " << static_cast<int>(laser_x) << " | Y: " << static_cast<int>(laser_y) << '\n';
         }
 
+     if (target_best_match != -1 && laser_best_match != -1 && target_max_area > 150 && laser_max_area > 10) {
+         double distance = std::hypot(target_x - laser_x, target_y - laser_y); // euclidean distance formula
+         if (distance < 25.0) {
+             cv::putText(webcam_main, "LOCKED", cv::Point(20, 60), cv::FONT_HERSHEY_DUPLEX, 1.0, cv::Scalar(0, 0, 255), 2, cv::LINE_8); //find better x y fix
+             std::cout << "[SYSTEM LOCKED]" << '\n';
+             // possible trigger system
+         }
+     }
+
         else {
             std::cout << "Searching for a target..." << '\n';
         }
