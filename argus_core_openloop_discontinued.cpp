@@ -15,11 +15,11 @@ const int camera_width = 640;
 const int target_x_tolerance = 20;
 
 const int camera_length = 400;
-const int target_y_tolerance = 20; // %5
+const int target_y_tolerance = 20;
 
-const float proportional_gain = 0.02f; // Kp -- f = float literal
-const float integral_gain = 0.00f;  // Ki f -- = float literal
-const float derivative_gain = 0.01f; // Kd -- f = float literal
+const float proportional_gain = 0.02f; 
+const float integral_gain = 0.00f; 
+const float derivative_gain = 0.01f; 
 
 struct Target {
     int x, y;
@@ -40,7 +40,7 @@ struct Target {
 
 void updateTarget(Target& t, double dt) {
 
-    if (t.x > camera_width) t.x = camera_width;  // !!!!!DONT FORGET BENCHMARK TEST 320 AND 1280!!!!!
+    if (t.x > camera_width) t.x = camera_width; 
     if (t.x < 0) t.x = 0;
     t.setpoint_pwm_x = pwm_min + (t.x * pwm_total / camera_width);
 
@@ -50,7 +50,7 @@ void updateTarget(Target& t, double dt) {
 
     float error_x = t.setpoint_pwm_x - t.pwm_x;
 
-    if (std::abs(error_x) < 3.0f) error_x = 0.0f; // creaating a ***deadband***!?!!?!
+    if (std::abs(error_x) < 3.0f) error_x = 0.0f; 
 
     float p_x = proportional_gain * error_x;
     t.integral_x += (error_x * dt);
@@ -111,7 +111,7 @@ int main()
         std::chrono::duration<double> elapsed = current_time - last_time;
         double dt = elapsed.count();
 
-        if (dt == 0.0) dt = 0.001; // to prevent division by zero in der calc
+        if (dt == 0.0) dt = 0.001;
 
         updateTarget(Target1, dt);
 
@@ -123,7 +123,7 @@ int main()
 
         last_time = current_time;
     }
-    gpioTerminate(); //doesnt prevent pigpio initialisation failed error if ctrl c find solution
+    gpioTerminate(); 
 
     std::cout << '\n';
     std::cout << '\n' << "--- COMPLETE ---" << '\n';
