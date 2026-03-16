@@ -1,3 +1,5 @@
+#include "argus_vision.h"
+
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <vector>
@@ -9,19 +11,6 @@
 constexpr int crosshair_gap = 2;
 constexpr int crosshair_length = 6;
 constexpr int hud_offset = 15;
-
-struct VisionState {
-    float target_x = 0, target_y = 0;
-    float laser_x = 0, laser_y = 0;
-    double target_area = 0, laser_area = 0;
-    bool target_detected = false;
-    bool laser_detected = false;
-    bool locked = false;
-    cv::Mat frame;
-    cv::Mat hsv;
-    cv::Mat target_mask;
-    cv::Mat laser_mask;
-};
 
 VisionState processFrame(cv::VideoCapture& cap,
     int min_hue, int max_hue,
