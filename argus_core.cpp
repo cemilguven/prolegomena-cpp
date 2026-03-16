@@ -1,33 +1,17 @@
 // INTEGRAL WINDUP!
 
-#include <iostream>
-#include <chrono>
-#include <cmath>
-#include <thread>
-#include <fstream>
-#include <opencv2/opencv.hpp>
+#include <argus_core.h>
 
-constexpr int crosshair_gap = 2;
-constexpr int crosshair_length = 6;
-constexpr int hud_offset = 15;
+#include <iostream>
+#include <cmath>
 
 const int center_pwm = 1365; // and/or 1355 tested center with mirror ds tape attached 10-15*x*x
 const int pwm_min = 520;
 const int pwm_max = 2520;
 
-const float proportional_gain = 0.12f; // Kp -- f = float literal   0.02u0.1u0.01 0.02u0.1u0.01
-const float integral_gain = 0.011f;     // Ki -- f = float literal
-const float derivative_gain = 0.045f;   // Kd -- f = float literal 
-
-struct ControlState {
-
-    float pwm_x = 1365.0f;
-    float pwm_y = 1365.0f;
-    float prev_error_x = 0.0f;
-    float prev_error_y = 0.0f;
-    float integral_x = 0.0f;
-    float integral_y = 0.0f;
-};
+const float proportional_gain = 0.12f; 
+const float integral_gain = 0.011f;     
+const float derivative_gain = 0.045f; 
 
 void CoreControl(ControlState& ctrl, float target_x, float target_y, float laser_x, float laser_y, double dt, float& output_x, float& output_y) {
 
