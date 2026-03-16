@@ -1,6 +1,6 @@
 // INTEGRAL WINDUP!
 
-#include <argus_core.h>
+#include "argus_core.h"
 
 #include <iostream>
 #include <cmath>
