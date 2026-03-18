@@ -1,8 +1,6 @@
 //double check DONT FORGET MIN MAX TEST CHANGE ALL VALUES IN FILES
 //double check DONT FORGET MIN MAX TEST CHANGE ALL VALUES IN FILES
 
-// DO CHRONO TELEMETRY CHECK PAST MAINS !!!!!!
-
 #include "argus_vision.h"
 #include "argus_core.h"
 
@@ -21,7 +19,7 @@ enum ArgusState {
 	IDLE,
 	SCAN,
 	TRACK,
-	LOCKED,
+	LOCKED
 };
 
 int main() {
@@ -39,7 +37,7 @@ int main() {
 	cv::VideoCapture cap(0);
 
 	if (!cap.isOpened()) {
-		std::cerr << "[ARGUS] CAMERA COULDD NOT BE INITIALIZED" << '\n';
+		std::cerr << "[ARGUS] CAMERA COULD NOT BE INITIALIZED" << '\n';
 		gpioTerminate();
 		return -1;
 	}
@@ -53,6 +51,9 @@ int main() {
 
 	auto start_time = std::chrono::steady_clock::now();
 	auto last_time = start_time;
+
+	std::ofstream data_log("argus_telemetry.csv");
+	data_log << "Elapsed Time(s),Target_X,Target_Y,Laser_X,Laser_Y,Error_X,Error_Y,PWM_X,PWM_Y" << '\n';
 
 	std::cout << "[ARGUS] ONLINE" << '\n';
 
@@ -74,7 +75,7 @@ int main() {
 
 			if (vision_data.laser_detected) {
 
-				std::cout << "[ARGUS] LASER DETECTED.." << '\n';
+				std::cout << "[ARGUS] LASER DETECTED" << '\n';
 
 				current_state = SCAN;
 			}
@@ -84,7 +85,7 @@ int main() {
 
 			if (vision_data.target_detected && vision_data.laser_detected) {
 
-				std::cout << "[ARGUS] TARGET ACQUIRED.." << '\n';
+				std::cout << "[ARGUS] TARGET ACQUIRED" << '\n';
 
 				current_state = TRACK;
 
@@ -112,7 +113,7 @@ int main() {
 
 			else if (vision_data.locked) {
 
-				std::cout << "[ARGUS] LOCKED.." << '\n';
+				std::cout << "[ARGUS] LOCKED" << '\n';
 
 				current_state = LOCKED;
 			}
@@ -125,7 +126,7 @@ int main() {
 				CoreControl(pid_core, vision_data.target_x, vision_data.target_y, vision_data.laser_x, vision_data.laser_y, dt, pwm_out_x, pwm_out_y);
 
 				gpioServo(gpio_x, static_cast<int>(pid_core.pwm_x));
-				gpioServo(gpio_y static_cast<int>(pid_core.pwm_y));
+				gpioServo(gpio_y, static_cast<int>(pid_core.pwm_y));
 			}
 			break;
 
@@ -151,14 +152,19 @@ int main() {
 		}
 
 		if (!vision_data.frame.empty()) {     // test performance w wo
-			cv::imshow("ARGUS X-1 OV9281", vision_data.frame);
+			cv::imshow("ARGUS X-1: OV9281", vision_data.frame);
+			std::chrono::duration<double> total_elapsed = current_time - start_time;
+			data_log << total_elapsed.count() << "," << vision_data.target_x << "," << vision_data.target_y << "," << vision_data.laser_x << "," << vision_data.laser_y << "," << (vision_data.target_x - vision_data.laser_x) << "," << (vision_data.target_y - vision_data.laser_y) << ","
+					 << pid_core.pwm_x << "," << pid_core.pwm_y << '\n';
 		}
 
 		if (cv::waitKey(1) == 27) {
-			std::cout << "[ARGUS] TERMINATED.." << '\n';
+			std::cout << "[ARGUS] TERMINATED" << '\n';
 			break;
 		}
 	}
+
+	data_log.close();
 
 	cap.release();
 	cv::destroyAllWindows();
